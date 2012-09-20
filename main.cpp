@@ -32,15 +32,35 @@ static enum_t transparentTypeMap[] {
     { EGL_TRANSPARENT_RGB, "transparent RGB" }
 };
 
+static enum_t surfaceTypeMap[] {
+    { EGL_PBUFFER_BIT, "pbuffer" },
+    { EGL_PIXMAP_BIT, "pixmap" },
+    { EGL_WINDOW_BIT, "window" },
+    { EGL_VG_COLORSPACE_LINEAR_BIT, "VG (linear colorspace)" },
+    { EGL_VG_ALPHA_FORMAT_PRE_BIT, "VG (alpha format pre)" },
+    { EGL_MULTISAMPLE_RESOLVE_BOX_BIT, "multisample resolve box" },
+    { EGL_SWAP_BEHAVIOR_PRESERVED_BIT, "swap behavior preserved" }
+};
+
+static enum_t renderableTypeMap[] {
+    { EGL_OPENGL_ES_BIT, "OpenGL ES" },
+    { EGL_OPENVG_BIT, "OpenVG" },
+    { EGL_OPENGL_ES2_BIT, "OpenGL ES2" },
+    { EGL_OPENGL_BIT, "OpenGL" }
+};
+
+
 struct attrib_t {
     EGLint attribute;
     const char* displayName;
     enum_t* enumMap;
     int enumMapSize;
+    bool isFlag;
 };
 
-#define A_NUM(x) { x, #x, 0, 0 }
-#define A_MAP(x, map) { x, #x, map, sizeof(map) / sizeof(enum_t) }
+#define A_NUM(x) { x, #x, 0, 0, false }
+#define A_MAP(x, map) { x, #x, map, sizeof(map) / sizeof(enum_t), false }
+#define A_FLAG(x, map) { x, #x, map, sizeof(map) / sizeof(enum_t), true }
 
 static attrib_t attributes[] {
     A_NUM(EGL_ALPHA_SIZE),
@@ -66,18 +86,20 @@ static attrib_t attributes[] {
     A_NUM(EGL_NATIVE_VISUAL_ID),
     A_NUM(EGL_NATIVE_VISUAL_TYPE),
     A_NUM(EGL_RED_SIZE),
-    A_NUM(EGL_RENDERABLE_TYPE),
+    A_FLAG(EGL_RENDERABLE_TYPE, renderableTypeMap),
     A_NUM(EGL_SAMPLE_BUFFERS),
     A_NUM(EGL_SAMPLES),
     A_NUM(EGL_STENCIL_SIZE),
-    A_NUM(EGL_SURFACE_TYPE),
+    A_FLAG(EGL_SURFACE_TYPE, surfaceTypeMap),
     A_MAP(EGL_TRANSPARENT_TYPE, transparentTypeMap),
     A_NUM(EGL_TRANSPARENT_RED_VALUE),
     A_NUM(EGL_TRANSPARENT_GREEN_VALUE),
     A_NUM(EGL_TRANSPARENT_BLUE_VALUE)
 };
 
-#undef A
+#undef A_NUM
+#undef A_MAP
+#undef A_FLAG
 
 static const int attributesSize = sizeof(attributes) / sizeof(attrib_t);
 
@@ -115,14 +137,23 @@ int main(int argc, char** argv)
     for (int i = 0; i < numConfigs; ++i) {
         cout << "Configuration " << i << ":" << endl;
         for (int j = 0; j < attributesSize; ++j) {
+            attrib_t *attr = &attributes[j];
             EGLint value;
-            EGLBoolean result = eglGetConfigAttrib(display, configs[i], attributes[j].attribute, &value);
-            cout << "  " << attributes[j].displayName << ": ";
+            EGLBoolean result = eglGetConfigAttrib(display, configs[i], attr->attribute, &value);
+            cout << "  " << attr->displayName << ": ";
             if (result) {
-                if (attributes[j].enumMap) {
-                    for (int k = 0; k < attributes[j].enumMapSize; ++k) {
-                        if (value == attributes[j].enumMap[k].value)
-                            cout << attributes[j].enumMap[k].displayName;
+                if (attr->enumMap) {
+                    bool firstEntry = true;
+                    for (int k = 0; k < attr->enumMapSize; ++k) {
+                        enum_t *enumValue = &attr->enumMap[k];
+                        if (value == enumValue->value && !attr->isFlag) {
+                            cout <<  enumValue->displayName;
+                        } else if (value & enumValue->value && attr->isFlag) {
+                            if (!firstEntry)
+                                cout << ", ";
+                            cout << enumValue->displayName;
+                            firstEntry = false;
+                        }
                     }
                 } else {
                     cout << value;
