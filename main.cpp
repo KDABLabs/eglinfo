@@ -124,6 +124,9 @@ static const int attributesSize = sizeof(attributes) / sizeof(attrib_t);
 
 int main(int argc, char** argv)
 {
+    const char* clientExts = eglQueryString(EGL_DEFAULT_DISPLAY, EGL_EXTENSIONS);
+    cout << "Client extensions: " << clientExts << endl << endl;
+
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (display == EGL_NO_DISPLAY) {
         cerr << "Could not obtain EGL display!" << endl;
@@ -137,6 +140,12 @@ int main(int argc, char** argv)
     }
 
     cout << "EGL version: " << majorVersion << "." << minorVersion << endl;
+    const char* clientAPIs = eglQueryString(display, EGL_CLIENT_APIS);
+    cout << "Client APIs for display: " << clientAPIs << endl;
+    const char* vendor = eglQueryString(display, EGL_VENDOR);
+    cout << "Vendor: " << vendor << endl;
+    const char* displayExts = eglQueryString(display, EGL_EXTENSIONS);
+    cout << "Display extensions: " << displayExts << endl;
 
     EGLint numConfigs;
     if (!eglGetConfigs(display, 0, 0, &numConfigs) && numConfigs > 0) {
@@ -145,7 +154,7 @@ int main(int argc, char** argv)
     }
 
     cout << "Found " << numConfigs << " configurations." << endl << endl;
-    
+
     EGLConfig *configs = new EGLConfig[numConfigs];
     if (!eglGetConfigs(display, configs, numConfigs, &numConfigs)) {
         cerr << "Could not retrieve EGL configurations!" << endl;
