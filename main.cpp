@@ -90,7 +90,7 @@ static attrib_t attributes[] {
     A_MAP(EGL_COLOR_BUFFER_TYPE, bufferTypeMap),
     A_MAP(EGL_CONFIG_CAVEAT, caveatMap),
     A_NUM(EGL_CONFIG_ID),
-    A_NUM(EGL_CONFORMANT),
+    A_FLAG(EGL_CONFORMANT, renderableTypeMap),
     A_NUM(EGL_DEPTH_SIZE),
     A_NUM(EGL_GREEN_SIZE),
     A_NUM(EGL_LEVEL),
