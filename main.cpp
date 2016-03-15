@@ -64,7 +64,10 @@ static enum_t renderableTypeMap[] {
     { EGL_OPENGL_ES_BIT, "OpenGL ES" },
     { EGL_OPENVG_BIT, "OpenVG" },
     { EGL_OPENGL_ES2_BIT, "OpenGL ES2" },
-    { EGL_OPENGL_BIT, "OpenGL" }
+    { EGL_OPENGL_BIT, "OpenGL" },
+#ifdef EGL_OPENGL_ES3_BIT
+    { EGL_OPENGL_ES3_BIT, "OpenGL ES3" }
+#endif
 };
 
 
