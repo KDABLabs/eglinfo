@@ -124,7 +124,7 @@ static const int attributesSize = sizeof(attributes) / sizeof(attrib_t);
 
 int main(int argc, char** argv)
 {
-    const char* clientExts = eglQueryString(EGL_DEFAULT_DISPLAY, EGL_EXTENSIONS);
+    const char* clientExts = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
     cout << "Client extensions: " << clientExts << endl << endl;
 
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
