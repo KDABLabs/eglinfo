@@ -121,6 +121,39 @@ static attrib_t attributes[] {
 
 static const int attributesSize = sizeof(attributes) / sizeof(attrib_t);
 
+static void printEnum(int value, attrib_t *attr)
+{
+    for (int i = 0; i < attr->enumMapSize; ++i) {
+        enum_t *enumValue = &attr->enumMap[i];
+        if (value == enumValue->value) {
+            cout << enumValue->displayName;
+            return;
+        }
+    }
+    cout << "0x" << hex << value << dec;
+}
+
+static void printFlags(int value, attrib_t *attr)
+{
+    bool firstEntry = true;
+    int handledFlags = 0;
+    for (int i = 0; i < attr->enumMapSize; ++i) {
+        enum_t *enumValue = &attr->enumMap[i];
+        if (value & enumValue->value) {
+            if (!firstEntry)
+                cout << ", ";
+            cout << enumValue->displayName;
+            firstEntry = false;
+            handledFlags |= enumValue->value;
+        }
+    }
+
+    if (handledFlags != value) {
+        if (!firstEntry)
+            cout << ", ";
+        cout << "unhandled flags 0x" << hex << (value - handledFlags) << dec;
+    }
+}
 
 int main(int argc, char** argv)
 {
@@ -170,18 +203,10 @@ int main(int argc, char** argv)
             cout << "  " << attr->displayName << ": ";
             if (result) {
                 if (attr->enumMap) {
-                    bool firstEntry = true;
-                    for (int k = 0; k < attr->enumMapSize; ++k) {
-                        enum_t *enumValue = &attr->enumMap[k];
-                        if (value == enumValue->value && !attr->isFlag) {
-                            cout <<  enumValue->displayName;
-                        } else if (value & enumValue->value && attr->isFlag) {
-                            if (!firstEntry)
-                                cout << ", ";
-                            cout << enumValue->displayName;
-                            firstEntry = false;
-                        }
-                    }
+                    if (!attr->isFlag)
+                        printEnum(value, attr);
+                    else
+                        printFlags(value, attr);
                 } else {
                     cout << value;
                 }
