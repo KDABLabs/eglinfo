@@ -164,7 +164,10 @@ static void printFlags(int value, attrib_t *attr)
 int main(int argc, char** argv)
 {
     const char* clientExts = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
-    cout << "Client extensions: " << clientExts << endl << endl;
+    if (clientExts)
+        cout << "Client extensions: " << clientExts << endl << endl;
+    else
+        cout << "No client extensions." << endl << endl;
 
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (display == EGL_NO_DISPLAY) {
