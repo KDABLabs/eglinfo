@@ -20,6 +20,7 @@
 #include <EGL/eglext.h>
 
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 
 using namespace std;
@@ -161,6 +162,36 @@ static void printFlags(int value, attrib_t *attr)
     }
 }
 
+static void printDevices()
+{
+    PFNEGLQUERYDEVICESEXTPROC eglQueryDevicesEXT = reinterpret_cast<PFNEGLQUERYDEVICESEXTPROC>(eglGetProcAddress("eglQueryDevicesEXT"));
+    EGLDeviceEXT devices[32];
+    EGLint num_devices;
+    if (!eglQueryDevicesEXT(32, devices, &num_devices)) {
+        cout << "Failed to query devices." << endl << endl;
+        return;
+    }
+    if (num_devices == 0) {
+        cout << "Found no devices." << endl << endl;
+        return;
+    }
+
+    cout << "Found " << num_devices << " device(s)." << endl;
+    PFNEGLQUERYDEVICESTRINGEXTPROC eglQueryDeviceStringEXT = reinterpret_cast<PFNEGLQUERYDEVICESTRINGEXTPROC>(eglGetProcAddress("eglQueryDeviceStringEXT"));
+
+    for (int i = 0; i < num_devices; ++i) {
+        cout << "Device " << i << ":" << endl;
+        EGLDeviceEXT device = devices[i];
+        const char* devExts = eglQueryDeviceStringEXT(device, EGL_EXTENSIONS);
+        if (devExts)
+            cout << "  Device Extensions: " << devExts << endl;
+        else
+            cout << "  No device extensions." << endl;
+
+        cout << endl;
+    }
+}
+
 int main(int argc, char** argv)
 {
     const char* clientExts = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
@@ -168,6 +199,9 @@ int main(int argc, char** argv)
         cout << "Client extensions: " << clientExts << endl << endl;
     else
         cout << "No client extensions." << endl << endl;
+
+    if (clientExts && strstr(clientExts, "EGL_EXT_device_base") != nullptr)
+        printDevices();
 
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (display == EGL_NO_DISPLAY) {
