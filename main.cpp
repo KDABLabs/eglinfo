@@ -57,7 +57,10 @@ static enum_t surfaceTypeMap[] {
     { EGL_VG_COLORSPACE_LINEAR_BIT, "VG (linear colorspace)" },
     { EGL_VG_ALPHA_FORMAT_PRE_BIT, "VG (alpha format pre)" },
     { EGL_MULTISAMPLE_RESOLVE_BOX_BIT, "multisample resolve box" },
-    { EGL_SWAP_BEHAVIOR_PRESERVED_BIT, "swap behavior preserved" }
+    { EGL_SWAP_BEHAVIOR_PRESERVED_BIT, "swap behavior preserved" },
+#ifdef EGL_STREAM_BIT_KHR
+    { EGL_STREAM_BIT_KHR, "stream" },
+#endif
 };
 
 static enum_t renderableTypeMap[] {
