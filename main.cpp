@@ -229,6 +229,7 @@ static EGLDisplay displayForDevice(EGLDeviceEXT device)
     EGLDisplay display = eglGetPlatformDisplayExt(EGL_PLATFORM_DEVICE_EXT, device, attribs);
     return display;
 #else
+#warning "Compiling without EGL_EXT_platform_base extension support!"
     return EGL_NO_DISPLAY;
 #endif
 }
