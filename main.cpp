@@ -162,6 +162,7 @@ static void printFlags(int value, attrib_t *attr)
     }
 }
 
+#ifdef EGL_EXT_device_base
 static void printDevices()
 {
     PFNEGLQUERYDEVICESEXTPROC eglQueryDevicesEXT = reinterpret_cast<PFNEGLQUERYDEVICESEXTPROC>(eglGetProcAddress("eglQueryDevicesEXT"));
@@ -191,6 +192,7 @@ static void printDevices()
         cout << endl;
     }
 }
+#endif
 
 int main(int argc, char** argv)
 {
@@ -200,8 +202,10 @@ int main(int argc, char** argv)
     else
         cout << "No client extensions." << endl << endl;
 
+#ifdef EGL_EXT_device_base
     if (clientExts && strstr(clientExts, "EGL_EXT_device_base") != nullptr)
         printDevices();
+#endif
 
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (display == EGL_NO_DISPLAY) {
