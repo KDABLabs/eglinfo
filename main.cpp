@@ -220,6 +220,19 @@ static void printDisplay(EGLDisplay display)
 }
 
 #ifdef EGL_EXT_device_base
+
+static EGLDisplay displayForDevice(EGLDeviceEXT device)
+{
+#ifdef EGL_EXT_platform_base
+    PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayExt = reinterpret_cast<PFNEGLGETPLATFORMDISPLAYEXTPROC>(eglGetProcAddress("eglGetPlatformDisplayEXT"));
+    EGLint attribs[] = { EGL_NONE };
+    EGLDisplay display = eglGetPlatformDisplayExt(EGL_PLATFORM_DEVICE_EXT, device, attribs);
+    return display;
+#else
+    return EGL_NO_DISPLAY;
+#endif
+}
+
 static void printDevices()
 {
     PFNEGLQUERYDEVICESEXTPROC eglQueryDevicesEXT = reinterpret_cast<PFNEGLQUERYDEVICESEXTPROC>(eglGetProcAddress("eglQueryDevicesEXT"));
@@ -245,6 +258,14 @@ static void printDevices()
             cout << "  Device Extensions: " << devExts << endl;
         else
             cout << "  No device extensions." << endl;
+
+        EGLDisplay display = displayForDevice(device);
+        if (display == EGL_NO_DISPLAY) {
+            cout << "  No attached display." << endl;
+        }else {
+            cout << "  Device display:" << endl;
+            printDisplay(display);
+        }
 
         cout << endl;
     }
