@@ -255,10 +255,15 @@ static void printDevices()
         cout << "Device " << i << ":" << endl;
         EGLDeviceEXT device = devices[i];
         const char* devExts = eglQueryDeviceStringEXT(device, EGL_EXTENSIONS);
-        if (devExts)
-            cout << "  Device Extensions: " << devExts << endl;
-        else
-            cout << "  No device extensions." << endl;
+        if (devExts) {
+            cout << "  Device Extensions: ";
+            if (strlen(devExts))
+                cout << devExts << endl;
+            else
+                cout << "none" << endl;
+        } else {
+            cout << "  Failed to retrieve device extensions." << endl;
+        }
 
         EGLDisplay display = displayForDevice(device);
         if (display == EGL_NO_DISPLAY) {
