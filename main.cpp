@@ -162,7 +162,7 @@ static void printFlags(int value, attrib_t *attr)
     }
 }
 
-static void printDisplay(EGLDisplay display)
+static void printDisplay(EGLDisplay display, const char* indent = "")
 {
     EGLint majorVersion, minorVersion;
     if (!eglInitialize(display, &majorVersion, &minorVersion)) {
@@ -170,13 +170,13 @@ static void printDisplay(EGLDisplay display)
         exit(1);
     }
 
-    cout << "EGL version: " << majorVersion << "." << minorVersion << endl;
+    cout << indent << "EGL version: " << majorVersion << "." << minorVersion << endl;
     const char* clientAPIs = eglQueryString(display, EGL_CLIENT_APIS);
-    cout << "Client APIs for display: " << clientAPIs << endl;
+    cout << indent << "Client APIs for display: " << clientAPIs << endl;
     const char* vendor = eglQueryString(display, EGL_VENDOR);
-    cout << "Vendor: " << vendor << endl;
+    cout << indent << "Vendor: " << vendor << endl;
     const char* displayExts = eglQueryString(display, EGL_EXTENSIONS);
-    cout << "Display extensions: " << displayExts << endl;
+    cout << indent << "Display extensions: " << displayExts << endl << endl;
 
     EGLint numConfigs;
     if (!eglGetConfigs(display, 0, 0, &numConfigs) && numConfigs > 0) {
@@ -184,7 +184,7 @@ static void printDisplay(EGLDisplay display)
         exit(1);
     }
 
-    cout << "Found " << numConfigs << " configurations." << endl << endl;
+    cout << indent << "Found " << numConfigs << " configurations." << endl;
 
     EGLConfig *configs = new EGLConfig[numConfigs];
     if (!eglGetConfigs(display, configs, numConfigs, &numConfigs)) {
@@ -193,12 +193,12 @@ static void printDisplay(EGLDisplay display)
     }
 
     for (int i = 0; i < numConfigs; ++i) {
-        cout << "Configuration " << i << ":" << endl;
+        cout << indent << "Configuration " << i << ":" << endl;
         for (int j = 0; j < attributesSize; ++j) {
             attrib_t *attr = &attributes[j];
             EGLint value;
             EGLBoolean result = eglGetConfigAttrib(display, configs[i], attr->attribute, &value);
-            cout << "  " << attr->displayName << ": ";
+            cout << indent << "  " << attr->displayName << ": ";
             if (result) {
                 if (attr->enumMap) {
                     if (!attr->isFlag)
@@ -264,7 +264,7 @@ static void printDevices()
             cout << "  No attached display." << endl;
         }else {
             cout << "  Device display:" << endl;
-            printDisplay(display);
+            printDisplay(display, "    ");
         }
 
         cout << endl;
