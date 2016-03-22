@@ -139,8 +139,12 @@ struct device_property_t {
 };
 
 static const device_property_t deviceProperties[] {
+#ifdef EGL_DRM_DEVICE_FILE_EXT
     { EGL_DRM_DEVICE_FILE_EXT, "DRM device file", "EGL_EXT_device_drm", device_property_t::String },
+#endif
+#ifdef EGL_CUDA_DEVICE_NV
     { EGL_CUDA_DEVICE_NV, "CUDA device", "EGL_NV_device_cuda", device_property_t::Attribute }
+#endif
 };
 
 static const int devicePropertiesSize = sizeof(deviceProperties) / sizeof(device_property_t);
