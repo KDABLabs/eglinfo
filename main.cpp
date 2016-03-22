@@ -180,6 +180,34 @@ static void printFlags(int value, attrib_t *attr)
     }
 }
 
+static void printOutputLayers(EGLDisplay display, const char* indent = "")
+{
+#ifdef EGL_EXT_output_base
+    const auto eglGetOutputLayersEXT = reinterpret_cast<PFNEGLGETOUTPUTLAYERSEXTPROC>(eglGetProcAddress("eglGetOutputLayersEXT"));
+
+    EGLint num_layers = 0;
+    if (!eglGetOutputLayersEXT(display, nullptr, nullptr, 0, &num_layers)) {
+        cout << indent << "Failed to query output layers." << endl;
+        return;
+    }
+    cout << indent << "Found " << num_layers << " output layers." << endl;
+#endif
+}
+
+static void printOutputPorts(EGLDisplay display, const char* indent = "")
+{
+#ifdef EGL_EXT_output_base
+    const auto eglGetOutputPortsEXT = reinterpret_cast<PFNEGLGETOUTPUTPORTSEXTPROC>(eglGetProcAddress("eglGetOutputPortsEXT"));
+
+    EGLint num_ports = 0;
+    if (!eglGetOutputPortsEXT(display, nullptr, nullptr, 0, &num_ports)) {
+        cout << indent << "Failed to query output ports." << endl;
+        return;
+    }
+    cout << indent << "Found " << num_ports << " output ports." << endl;
+#endif
+}
+
 static void printDisplay(EGLDisplay display, const char* indent = "")
 {
     EGLint majorVersion, minorVersion;
@@ -194,7 +222,10 @@ static void printDisplay(EGLDisplay display, const char* indent = "")
     const char* vendor = eglQueryString(display, EGL_VENDOR);
     cout << indent << "Vendor: " << vendor << endl;
     const char* displayExts = eglQueryString(display, EGL_EXTENSIONS);
-    cout << indent << "Display extensions: " << displayExts << endl << endl;
+    cout << indent << "Display extensions: " << displayExts << endl;
+
+    printOutputLayers(display, indent);
+    printOutputPorts(display, indent);
 
     EGLint numConfigs;
     if (!eglGetConfigs(display, 0, 0, &numConfigs) && numConfigs > 0) {
