@@ -228,8 +228,10 @@ static void printDisplay(EGLDisplay display, const char* indent = "")
     const char* displayExts = eglQueryString(display, EGL_EXTENSIONS);
     cout << indent << "Display extensions: " << displayExts << endl;
 
-    printOutputLayers(display, indent);
-    printOutputPorts(display, indent);
+    if (displayExts && strstr(displayExts, "EGL_EXT_output_base") != nullptr) {
+        printOutputLayers(display, indent);
+        printOutputPorts(display, indent);
+    }
 
     EGLint numConfigs;
     if (!eglGetConfigs(display, 0, 0, &numConfigs) && numConfigs > 0) {
