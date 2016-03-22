@@ -128,6 +128,24 @@ static attrib_t attributes[] {
 
 static const int attributesSize = sizeof(attributes) / sizeof(attrib_t);
 
+struct device_property_t {
+    EGLint name;
+    const char* displayName;
+    const char* extension;
+    enum Type {
+        String,
+        Attribute
+    } type;
+};
+
+static const device_property_t deviceProperties[] {
+    { EGL_DRM_DEVICE_FILE_EXT, "DRM device file", "EGL_EXT_device_drm", device_property_t::String },
+    { EGL_CUDA_DEVICE_NV, "CUDA device", "EGL_NV_device_cuda", device_property_t::Attribute }
+};
+
+static const int devicePropertiesSize = sizeof(deviceProperties) / sizeof(device_property_t);
+
+
 static void printEnum(int value, attrib_t *attr)
 {
     for (int i = 0; i < attr->enumMapSize; ++i) {
@@ -249,6 +267,7 @@ static void printDevices()
     }
 
     cout << "Found " << num_devices << " device(s)." << endl;
+    PFNEGLQUERYDEVICEATTRIBEXTPROC eglQueryDeviceAttribEXT = reinterpret_cast<PFNEGLQUERYDEVICEATTRIBEXTPROC>(eglGetProcAddress("eglQueryDeviceAttribEXT"));
     PFNEGLQUERYDEVICESTRINGEXTPROC eglQueryDeviceStringEXT = reinterpret_cast<PFNEGLQUERYDEVICESTRINGEXTPROC>(eglGetProcAddress("eglQueryDeviceStringEXT"));
 
     for (int i = 0; i < num_devices; ++i) {
@@ -263,6 +282,28 @@ static void printDevices()
                 cout << "none" << endl;
         } else {
             cout << "  Failed to retrieve device extensions." << endl;
+        }
+
+        for (int j = 0; j < devicePropertiesSize; ++j) {
+            const auto property = deviceProperties[j];
+            if (!devExts || strstr(devExts, property.extension) == nullptr)
+                continue;
+            switch (property.type) {
+                case device_property_t::String:
+                {
+                    const char* value = eglQueryDeviceStringEXT(device, property.name);
+                    cout << "  " << property.displayName << ": " << value << endl;
+                    break;
+                }
+                case device_property_t::Attribute:
+                {
+                    EGLAttrib attrib;
+                    if (eglQueryDeviceAttribEXT(device, property.name, &attrib) == EGL_FALSE)
+                        break;
+                    cout << "  " << property.displayName << ": " << attrib << endl;
+                    break;
+                }
+            }
         }
 
         EGLDisplay display = displayForDevice(device);
