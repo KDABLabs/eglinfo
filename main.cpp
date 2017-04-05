@@ -188,6 +188,10 @@ static void printOutputLayers(EGLDisplay display, const char* indent = "")
 {
 #ifdef EGL_EXT_output_base
     const auto eglGetOutputLayersEXT = reinterpret_cast<PFNEGLGETOUTPUTLAYERSEXTPROC>(eglGetProcAddress("eglGetOutputLayersEXT"));
+    if (!eglGetOutputLayersEXT) {
+        cout << indent << "Failed to resolve eglGetOutputLayersEXT function." << endl;
+	return;
+    }
 
     EGLint num_layers = 0;
     if (!eglGetOutputLayersEXT(display, nullptr, nullptr, 0, &num_layers)) {
@@ -202,6 +206,10 @@ static void printOutputPorts(EGLDisplay display, const char* indent = "")
 {
 #ifdef EGL_EXT_output_base
     const auto eglGetOutputPortsEXT = reinterpret_cast<PFNEGLGETOUTPUTPORTSEXTPROC>(eglGetProcAddress("eglGetOutputPortsEXT"));
+    if (!eglGetOutputPortsEXT) {
+        cout << indent << "Failed to resolve eglGetOutputPortsEXT function." << endl;
+	return;
+    }
 
     EGLint num_ports = 0;
     if (!eglGetOutputPortsEXT(display, nullptr, nullptr, 0, &num_ports)) {
